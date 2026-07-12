@@ -1,0 +1,51 @@
+name: Nightly backup
+
+# The ONLY backup for the Supabase free tier (no PITR). pg_dump -> Cloudflare R2.
+# Runs nightly and on demand. Requires these repo secrets (owner-provided):
+#   SUPABASE_DB_URL       session-mode (port 5432) connection string
+#   R2_ACCOUNT_ID         Cloudflare account id
+#   R2_ACCESS_KEY_ID      R2 access key
+#   R2_SECRET_ACCESS_KEY  R2 secret key
+#   R2_BUCKET             R2 bucket name
+on:
+  schedule:
+    - cron: "30 19 * * *" # 01:00 Asia/Kolkata
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Dump database (pg_dump 17 via docker; matches Postgres server major)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          ts=$(date -u +%Y%m%dT%H%M%SZ)
+          file="backup-$ts.sql.gz"
+          docker run --rm -e PGCONNECT_TIMEOUT=30 postgres:17 \
+            pg_dump --no-owner --no-privileges "$SUPABASE_DB_URL" | gzip > "$file"
+          # sanity: a non-trivial dump should be more than a few hundred bytes
+          test "$(stat -c%s "$file")" -gt 500
+          echo "BACKUP_FILE=$file" >> "$GITHUB_ENV"
+
+      - name: Upload to Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          aws s3 cp "$BACKUP_FILE" "s3://$R2_BUCKET/db/$BACKUP_FILE" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          echo "::error title=Nightly backup failed::pg_dump or R2 upload failed — investigate immediately (this is the only backup)."

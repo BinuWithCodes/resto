@@ -7,5 +7,6 @@ db/migrations
 # Canonical contract + spec + working docs — kept pristine, not Prettier-managed.
 CLAUDE.md
 FEATURE_LIST_V2.md
+RUNBOOK.md
 docs
 design-system
