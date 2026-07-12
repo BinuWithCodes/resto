@@ -32,6 +32,12 @@ Branch: `claude/claude-md-kickoff-c345zi` → PRs into `main`.
   negative-stock guard (pgTAP-proven)
 - **0006** purchases, purchase_items, supplier_payments, waste_logs,
   stock_counts, stock_count_items, consumption_templates (+ items)
+- **0013** transactional `close_shift` + `lock_shift` RPCs — cash
+  reconciliation, mandatory variance reason, open→closed→locked (pgTAP-proven)
+- **0014** idempotency_keys (§4.4 `UNIQUE(device_id, key)`) + transactional
+  stock-posting RPCs `post_purchase` / `post_consumption` / `post_waste` —
+  source row + append-only movement in one txn, negative-stock guard, idempotent
+  replay, cross-location isolation (pgTAP-proven)
 
 ### Phase 2 — Hostel
 - **0007** rooms, beds, tenants (Aadhaar-last-4 CHECK, pgTAP-proven), bed_assignments
@@ -54,9 +60,10 @@ Branch: `claude/claude-md-kickoff-c345zi` → PRs into `main`.
 - Rate limiting: needs Upstash; Sentry seam: needs DSN (SDK wiring pending)
 
 ## Remaining (not yet built)
-- **Transactional RPCs** (§4.4): shift close+reconcile+lock, purchase posting →
-  movements, consumption from template, waste posting, deposit settlement,
-  payroll run — as Postgres functions called via RPC (idempotency keys)
+- **Transactional RPCs** (§4.4): shift close+reconcile+lock ✅ (0013), purchase
+  posting ✅, consumption ✅, waste posting ✅ (0014). Still: stock transfer /
+  internal issue, physical-count posting (variance→adjustment movement),
+  deposit settlement, payroll run — as Postgres functions called via RPC
 - **Server actions** (via authedAction) + **UI** for every flow; **client-side
   PDFs** (receipts, payslips) with @react-pdf/renderer
 - **JWT auth hook** (0.7 optimization) + login/middleware runtime wiring
