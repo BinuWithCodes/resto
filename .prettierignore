@@ -1,0 +1,10 @@
+.next
+node_modules
+package-lock.json
+next-env.d.ts
+public
+db/migrations
+# Canonical contract + spec + working plans — kept pristine, not Prettier-managed.
+CLAUDE.md
+FEATURE_LIST_V2.md
+docs
