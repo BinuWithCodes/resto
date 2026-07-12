@@ -1,0 +1,30 @@
+{
+  "app": {
+    "name": "Resto",
+    "tagline": "Operations Console"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "restaurant": "Restaurant",
+    "hostel": "Hostel",
+    "staff": "Staff",
+    "settings": "Settings"
+  },
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "tamil": "Tamil",
+    "phasePlaceholder": "Coming in a later phase."
+  },
+  "auth": {
+    "login": "Login",
+    "loginPlaceholder": "Sign-in is wired up in a later step."
+  },
+  "errors": {
+    "unauthorized": "Please sign in to continue.",
+    "forbidden": "You don't have access to this.",
+    "rate_limited": "Too many requests. Please wait a moment.",
+    "validation": "Please check the highlighted fields.",
+    "server": "Something went wrong. Please try again."
+  }
+}
