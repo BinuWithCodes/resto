@@ -225,6 +225,19 @@ alter table public.audit_logs        enable row level security;
 alter table public.system_metrics    enable row level security;
 alter table public.notifications_log enable row level security;
 
+-- ---- Base privileges: RLS is the fine-grained gate; these coarse GRANTs are
+--      what RLS filters. Without them `authenticated` gets "permission denied"
+--      before any policy runs. `anon` gets nothing (admin-only app, no public
+--      access). Explicit here rather than relying on Supabase default privileges.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on
+  public.organizations, public.locations, public.users,
+  public.memberships, public.notifications_log
+  to authenticated;
+-- audit_logs / system_metrics are read-only to clients; writes go through the
+-- SECURITY DEFINER trigger (audit) or service_role (metrics).
+grant select on public.audit_logs, public.system_metrics to authenticated;
+
 -- Hard-revoke write grants where writes must go through triggers/service_role
 revoke insert, update, delete on public.audit_logs     from anon, authenticated;
 revoke insert, update, delete on public.system_metrics from anon, authenticated;
