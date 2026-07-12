@@ -45,5 +45,21 @@ jobs:
       - name: Build
         run: npm run build
 
-    # NOTE: the local-Supabase + migrations + pgTAP stage is added in step 0.6,
-    # once there is a schema and tests to run. Nothing to run before then.
+  db:
+    name: migrations · pgTAP (RLS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Starts local Postgres and applies db/migrations (via the
+      # supabase/migrations symlink). auth schema is present for auth.users FKs.
+      - name: Start local database
+        run: supabase db start
+
+      - name: pgTAP tests
+        run: supabase test db
