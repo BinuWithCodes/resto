@@ -68,12 +68,13 @@ Branch: `claude/claude-md-kickoff-c345zi` → PRs into `main`.
   advance_deductions recorded; duplicate-run rejected) + `approve_payroll`
   (super_admin-gated, locks the period's attendance) (pgTAP-proven)
 
-### App layer (Server Actions + first UI slice)
+### App layer (Server Actions + one UI slice per domain)
 - `lib/actions/{restaurant,hostel,staff}.ts` — authedAction wrappers over every
   RPC (AUTHORIZE→VALIDATE→MUTATE, zod input, IDOR guard, Postgres errors → Sentry)
-- Purchase entry UI: `/restaurant/purchases` (RLS-scoped server fetch) +
-  `PurchaseForm` client component posting through `createPurchase`; bilingual
-  strings added. `next build` + tsc + lint + 47 Vitest all green
+- UI slices (RLS-scoped server fetch + client form → Server Action → RPC):
+  `/restaurant/purchases` (createPurchase), `/hostel/rent` (recordRentPayment),
+  `/staff/payroll` (run/approve). Bilingual strings (en/ta, 53 keys, parity
+  checked). `next build` + tsc + lint + 47 Vitest all green
 
 ## Authored, needs owner credentials to run
 - Supabase clients / health / backup / keep-alive: need Supabase, R2, CRON_SECRET
