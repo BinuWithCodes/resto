@@ -49,14 +49,24 @@ Branch: `claude/claude-md-kickoff-c345zi` → PRs into `main`.
 - **0012** views: daily_summaries, stock_valuation_view,
   collection_efficiency_view (security_invoker; RLS flows through)
 
+### Transactional RPCs (§4.4)
+- **0013** `close_shift` (cash reconcile + mandatory variance reason) + `lock_shift`
+  — SECURITY INVOKER, RLS-scoped; open→closed→locked (pgTAP-proven)
+- **0014** `post_purchase` — writes purchase header + items + append-only
+  stock_movements in one transaction; total derived; balance trigger fires;
+  org derived from the location row (RLS gate, no direct `private` calls);
+  reusable `idempotency_keys` table (UNIQUE(device_id, key)) makes offline-synced
+  replays safe (pgTAP-proven: reconcile, replay-no-double-post, empty/foreign
+  item + inaccessible-location rejection)
+
 ## Authored, needs owner credentials to run
 - Supabase clients / health / backup / keep-alive: need Supabase, R2, CRON_SECRET
 - Rate limiting: needs Upstash; Sentry seam: needs DSN (SDK wiring pending)
 
 ## Remaining (not yet built)
-- **Transactional RPCs** (§4.4): shift close+reconcile+lock, purchase posting →
-  movements, consumption from template, waste posting, deposit settlement,
-  payroll run — as Postgres functions called via RPC (idempotency keys)
+- **Transactional RPCs** (§4.4) still to build: consumption from template, waste
+  posting, stock count posting, transfers, deposit settlement, payroll run — as
+  Postgres functions called via RPC, reusing the `idempotency_keys` table from 0014
 - **Server actions** (via authedAction) + **UI** for every flow; **client-side
   PDFs** (receipts, payslips) with @react-pdf/renderer
 - **JWT auth hook** (0.7 optimization) + login/middleware runtime wiring
