@@ -38,6 +38,29 @@
     "noItems": "No stock items yet. Add items in settings first.",
     "noLocation": "No restaurant location is set up yet."
   },
+  "hostel": {
+    "recordPayment": "Record rent payment",
+    "tenant": "Tenant",
+    "selectTenant": "Select a tenant",
+    "amount": "Amount (₹)",
+    "mode": "Mode",
+    "upi": "UPI",
+    "cash": "Cash",
+    "bank": "Bank",
+    "paymentSaved": "Payment recorded.",
+    "noTenants": "No active tenants yet."
+  },
+  "staff": {
+    "payroll": "Payroll",
+    "period": "Period",
+    "workingDays": "Working days",
+    "runPayroll": "Run payroll",
+    "runCreated": "Draft payroll run created.",
+    "draftRuns": "Draft runs",
+    "noDrafts": "No draft runs.",
+    "approve": "Approve",
+    "approved": "Payroll approved."
+  },
   "errors": {
     "unauthorized": "Please sign in to continue.",
     "forbidden": "You don't have access to this.",
