@@ -58,17 +58,33 @@ Branch: `claude/claude-md-kickoff-c345zi` → PRs into `main`.
   reusable `idempotency_keys` table (UNIQUE(device_id, key)) makes offline-synced
   replays safe (pgTAP-proven: reconcile, replay-no-double-post, empty/foreign
   item + inaccessible-location rejection)
+- **0015** `post_consumption`, `post_waste`, `finalize_stock_count` — batch-
+  idempotent negative-guarded ledger writes; count posting reconciles balances
+  and locks draft→posted (pgTAP-proven)
+- **0016** `record_rent_payment` (oldest-first allocation, overpayment rejected,
+  batch-idempotent) + `settle_moveout` (deposit refund, super_admin-gated,
+  settle-once) (pgTAP-proven)
+- **0017** `run_payroll` (net = salary − unpaid leave − advance instalment;
+  advance_deductions recorded; duplicate-run rejected) + `approve_payroll`
+  (super_admin-gated, locks the period's attendance) (pgTAP-proven)
+
+### App layer (Server Actions + first UI slice)
+- `lib/actions/{restaurant,hostel,staff}.ts` — authedAction wrappers over every
+  RPC (AUTHORIZE→VALIDATE→MUTATE, zod input, IDOR guard, Postgres errors → Sentry)
+- Purchase entry UI: `/restaurant/purchases` (RLS-scoped server fetch) +
+  `PurchaseForm` client component posting through `createPurchase`; bilingual
+  strings added. `next build` + tsc + lint + 47 Vitest all green
 
 ## Authored, needs owner credentials to run
 - Supabase clients / health / backup / keep-alive: need Supabase, R2, CRON_SECRET
 - Rate limiting: needs Upstash; Sentry seam: needs DSN (SDK wiring pending)
+- Server Actions call the RPCs but need a live Supabase project + a signed-in
+  session to exercise end-to-end (RPC logic itself verified on local PG16)
 
 ## Remaining (not yet built)
-- **Transactional RPCs** (§4.4) still to build: consumption from template, waste
-  posting, stock count posting, transfers, deposit settlement, payroll run — as
-  Postgres functions called via RPC, reusing the `idempotency_keys` table from 0014
-- **Server actions** (via authedAction) + **UI** for every flow; **client-side
-  PDFs** (receipts, payslips) with @react-pdf/renderer
+- **UI breadth**: forms/lists for the remaining flows (shifts, consumption/waste,
+  counts, tenants/rent/reminders, roster/attendance/payroll, dashboards)
+- **Client-side PDFs** (receipts, payslips) with @react-pdf/renderer
 - **JWT auth hook** (0.7 optimization) + login/middleware runtime wiring
 - **PWA** offline queue (serwist + Dexie), **Sentry SDK**, **restore-test**
   workflow, monthly integrity job, **reports/exports**, wa.me reminders

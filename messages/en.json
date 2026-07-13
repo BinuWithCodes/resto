@@ -20,6 +20,24 @@
     "login": "Login",
     "loginPlaceholder": "Sign-in is wired up in a later step."
   },
+  "restaurant": {
+    "purchases": "Purchases",
+    "newPurchase": "New purchase",
+    "item": "Item",
+    "selectItem": "Select an item",
+    "qty": "Quantity",
+    "rate": "Rate (₹)",
+    "addLine": "Add line",
+    "removeLine": "Remove line",
+    "paymentStatus": "Payment",
+    "paid": "Paid",
+    "credit": "Credit",
+    "total": "Total",
+    "save": "Save purchase",
+    "saved": "Purchase saved.",
+    "noItems": "No stock items yet. Add items in settings first.",
+    "noLocation": "No restaurant location is set up yet."
+  },
   "errors": {
     "unauthorized": "Please sign in to continue.",
     "forbidden": "You don't have access to this.",
